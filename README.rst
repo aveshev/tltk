@@ -15,7 +15,14 @@ pronunciation trainer. It changes packaging and g2p only:
   downloads, ``"tltk[all]"`` both. A missing library raises an ImportError
   naming the extra when the feature is used.
 - No invalid escape sequence warnings; the broken ``tltk`` console script is gone.
-- g2p fixes (see Fork updates below).
+- g2p fixes (``G2P_FIXES`` and ``fix_sara`` in nlp.py; tests in
+  tests/test_g2p_fixes.py):
+
+  - สระ "vowel" is read sa1'ra1 before a vowel name (สระอา) and in terms like
+    สระเสียงยาว; สระ "pond" after ขุด is sa1 (attapol/tltk#11).
+  - สิบเอ็ด, สารเลว, ชานมเย็น lost or misplaced syllables; บุรุษ is low-toned
+    รุษ [บุหฺรุด]; แอปเปิล and วอลเลย์บอล keep their spoken loanword tones
+    (attapol/tltk#12).
 
 Install: ``pip install "tltk @ git+https://github.com/aveshev/tltk"``
 

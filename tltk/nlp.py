@@ -1703,11 +1703,38 @@ def g2p(Input):
             if objMatch:
                 out = inp+'<tr/>'+inp
             else:
-                y = sylparse(inp)
-                out = wordparse(y)
+                out = parse_with_fixes(inp)
             output = output+out+WordSep
         output = output+'<s/>'    ####write <s/> output for SegSep   
     return(output)        
+
+#### Readings the statistics get wrong (aveshev fork). A key found in the input is
+#### cut out before syllable parsing and given this reading (chunks<tr/>syllables);
+#### the text around it is parsed as usual and joined on as more chunks.
+G2P_FIXES = {
+    "สิบเอ็ด": "สิบ~เอ็ด<tr/>sip1~?et1",      # parsed as สิ~บเอ็ด, second syllable lost
+    "สารเลว": "สาร~เลว<tr/>saan4~leew0",      # parsed as สา~รเลว, เลว lost
+    "ชานมเย็น": "ชา~นม~เย็น<tr/>chaa0~nom0~jen0",  # parsed as ชาน~มเย็น
+    "บุรุษ": "บุ~รุษ<tr/>bu1~rut1",            # [บุหฺรุด] (Royal Society dictionary): low, not high
+    "บรรพบุรุษ": "บรรพ~บุ~รุษ<tr/>ban0'pha3~bu1~rut1",  # บรรพ alone reads bap1
+    # English loanwords keep their spoken tones (เปิ้ล, เล่ย์)
+    "แอปเปิล": "แอป~เปิล<tr/>?xxp1~p@@n2",
+    "วอลเลย์บอล": "วอล~เลย์~บอล<tr/>wOOn0~lee2~bOOn0",
+}
+G2P_FIXES_RE = re.compile('|'.join(sorted(map(re.escape, G2P_FIXES), key=len, reverse=True)))
+
+def parse_with_fixes(inp):
+    m = G2P_FIXES_RE.search(inp)
+    if not m or inp[m.end():].startswith('ๆ'):
+        return wordparse(sylparse(inp))
+    parts = [wordparse(sylparse(x)) if x else '' for x in (inp[:m.start()], inp[m.end():])]
+    if any('<Fail>' in x for x in parts):
+        return wordparse(sylparse(inp))
+    left, right = parts
+    parts = [x for x in (left, G2P_FIXES[m.group()], parse_with_fixes(inp[m.end():]) if right else '') if x]
+    th = '~'.join(x.split('<tr/>')[0] for x in parts)
+    tr = '~'.join(x.split('<tr/>')[1] for x in parts)
+    return th + '<tr/>' + tr
 
 ## return all transcriptions based on syllable parse
 def th2ipa_all(inp):
@@ -2198,6 +2225,7 @@ def wordparse(Input):
                 tmp = wx.split(SylSep)
                 op = SelectPhones(tmp)    
                 outp.append(op)
+            outp = fix_sara(chart[0][EndOfSent], outp)
             outx += WordSep.join(outp)
 ### replace duplicate word for ๆ
             outx = re.sub(maiyamok_find,maiyamok_rep,outx)        
@@ -2205,6 +2233,37 @@ def wordparse(Input):
         else:
             return("<Fail>"+Input+"</Fail>")
     
+#### สระ "vowel" is sa1'ra1, สระ "pond" and "wash (hair)" are sa1 (Royal Society
+#### dictionary: สระ ๒ [สะหฺระ]; สระ ๑, ๓ [สะ]); the statistics mix them up (aveshev fork).
+VOWEL_NAMES = set("อะ อา อิ อี อึ อือ อุ อู เอะ เอ แอะ แอ โอะ โอ เอาะ ออ เออะ เออ "
+                  "เอียะ เอีย เอือะ เอือ อัวะ อัว อำ ไอ ใอ เอา ฤ ฤๅ ฦ ฦๅ".split())
+VOWEL_NAME_FIXES = {"อัว": "?uua0"}   # read as ?aw0
+VOWEL_TERMS = ("เสียงยาว", "เสียงสั้น", "ลดรูป", "เปลี่ยนรูป", "ผสม", "ประสม", "เดี่ยว", "แท้", "มาตรฐาน")
+
+## words = chunks joined by ~ per word, prons = SelectPhones output per word
+def fix_sara(words, prons):
+    chunks = [c for w in words for c in w.split('~')]
+    phs = [p.split('~') for p in prons]
+    where = [(i, j) for i, p in enumerate(phs) for j in range(len(p))]
+    if 'สระ' not in chunks or len(where) != len(chunks):
+        return prons
+    for k, c in enumerate(chunks):
+        if c != 'สระ':
+            continue
+        nxt = chunks[k+1] if k+1 < len(chunks) else ''
+        # อำ~เภอ, อา~กาศ: a word that starts like a vowel name
+        if nxt in VOWEL_NAMES and not (k+2 < len(chunks) and nxt + chunks[k+2] in TDICT) \
+                or ''.join(chunks[k+1:]).startswith(VOWEL_TERMS):
+            i, j = where[k]
+            phs[i][j] = "sa1'ra1"
+            if nxt in VOWEL_NAME_FIXES:
+                i, j = where[k+1]
+                phs[i][j] = VOWEL_NAME_FIXES[nxt]
+        elif k > 0 and chunks[k-1] == 'ขุด':
+            i, j = where[k]
+            phs[i][j] = "sa1"
+    return ['~'.join(p) for p in phs]
+
 ## input = list of syllables
 ## output = syl/pron-syl/pron-syl/pron
 def SelectPhones(slst):
