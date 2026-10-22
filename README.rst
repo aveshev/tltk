@@ -1,5 +1,5 @@
-Thai Language Toolkit Project  version 1.9.1
-============================================
+Thai Language Toolkit Project  version 1.11
+===========================================
 
 TLTK is a Python package designed for Thai language processing, which includes functionalities such as syllable and word segmentation, discourse unit segmentation, POS tagging, named entity recognition, grapheme-to-phoneme conversion, IPA transcription, romanization, and more. To use TLTK, you will need to have Python 3.6 or a more recent version installed. The project is an open-source software developed at Chulalongkorn University. As of version 1.2.2, the package license has been changed to the New BSD License (BSD-3-Clause).
 
@@ -7,6 +7,10 @@ Input : must be utf8 Thai texts.
 
 Updates:
 --------
+Version 1.11: Bug fixs for LdvTTR calculation in TextAna module. The correct calculation is the number of unique words (types) divided by the total number of words (tokens) multiplied by 100. Text with one paragraph now can be processed by TextAna module.
+
+Version 1.10: Fixed a bug that was causing inaccurate transcriptions in g2p, th2ipa, th2roman.
+
 Version 1.9: TextClass(text) can classify both level and genre. Levels are categorized as L1 - L4 for Lower Elementary, Upper Elementary, Middle, and High School. Genres are categorized as Academic, Essay, Fiction, Institution, Law, Misc, Newspaper, Non-academic, Popular magazine, Speech
 
 Version 1.8.1: Bug fixes for TNC3g_load().

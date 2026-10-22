@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #########################################################
-## Thai Language Toolkit : version  1.9.1
+## Thai Language Toolkit : version  1.11
 ## Chulalongkorn University
 ## word_segmentation, syl_segementation written by Wirote Aroonmanakun
 ## Implemented :
@@ -1399,7 +1399,8 @@ def TextAna(alltext,TextOption="par",WordOption="colloc",UDParse="none"):
     txt.DesWrdL = statistics.mean(wrdsyl_lst)
     txt.DesWrdLd = statistics.stdev(wrdsyl_lst)
     txt.DesPL = statistics.mean(parwrd_lst)
-    txt.LdvTTR = txt.DesTotT * 1000 /txt.DesTotW
+#    txt.LdvTTR = txt.DesTotT * 1000 /txt.DesTotW
+    txt.LdvTTR = txt.DesTotT * 100 /txt.DesTotW
     txt.WrdCorrTone = txt.DesCorrToneC * 1000 /txt.DesTotW  ## no of correct tone form and phone
     txt.WrdInCorrTone = txt.DesInCorrToneC * 1000 /txt.DesTotW  ## no of incorrect tone form and phone
     txt.WrdCorrFinal = txt.DesCorrFinalC * 1000 /txt.DesTotW  ## no of correct final consonant กก กด กง กน กม เกย เกอว
@@ -1816,10 +1817,12 @@ def sylparse(Input):
 #                        print("Not Found K",tmp,probEnd[(0,k)])  
                     else:
                         p = prob_trisyl(tmp)
+#                        print(p,"<>",probEnd[(0,k)])
+#                        if p >= probEnd[(0,k)]:
                         if p > probEnd[(0,k)]:
                             schartx[0][k] = tmp 
                             probEnd[(0,k)] = p
-#                            print("Found K new",tmp,probEnd[(0,k)])  
+#                            print("Found K new",tmp,probEnd[(0,k)])
         schart = deepcopy(schartx)
     if EndOfInput in schart[0]:    
         return(SylSep.join(schart[0][EndOfInput]))
@@ -2154,21 +2157,23 @@ def wordparse(Input):
 #        gen_unknown_thaiw(SylLst)
         for i in range(EndOfSent):
             chart[i][i+1] = [SylLst[i]]
+#            print("sylchart",i,chart[i][i+1])
         ############################################################
         for i in range(EndOfSent):
             for j in range(i,EndOfSent+1):
                 wrd = ''.join(SylLst[i:j])
-                if wrd in TDICT:
+#                if wrd in TDICT:
 #                    chart[i][j] = [wrd]
-                    chart[i][j] = ['~'.join(SylLst[i:j])]
-                    if j > i+1:   ### more than one syllable, compute St
-                        St = 0.0
-                        NoOfSyl = len(SylLst[i:j])
-                        for ii in range(i,j-1):
-                            St += compute_colloc("mi",SylLst[ii],SylLst[ii+1])
-                        CollocSt[(i,j)] = St    #### Compute STrength of the word
-                    else:   ### one sylable word St = 0
-                        CollocSt[(i,j)] = 0.0
+                chart[i][j] = ['~'.join(SylLst[i:j])]
+#                print("chart",i,j,chart[i][j])
+                if j > i+1:   ### more than one syllable, compute St
+                    St = 0.0
+                    NoOfSyl = len(SylLst[i:j])
+                    for ii in range(i,j-1):
+                        St += compute_colloc("mi",SylLst[ii],SylLst[ii+1])
+                    CollocSt[(i,j)] = St    #### Compute STrength of the word
+                else:   ### one sylable word St = 0
+                    CollocSt[(i,j)] = 0.0
         if chart_parse():
             outx += WordSep.join(chart[0][EndOfSent])
             outx = outx.replace('~ๆ','|ๆ')
@@ -3178,7 +3183,8 @@ def prob_wb(w,pw1,pw2):
         p2 = float( BiCount[(pw1,w)]) / float((Count[pw1] + Type[pw1]) )
     if Count[w] > 0:
         p1 = float( Count[w]) / float(TotalWord + TotalLex)
-    p = 0.8 * p3 + 0.15 * p2 + 0.04 * p1 + 1.0 / float((TotalWord + TotalLex)**2)
+#    p = 0.8 * p3 + 0.15 * p2 + 0.04 * p1 + 1.0 / float((TotalWord + TotalLex)**2)
+    p = 0.8 * p3 + 0.15 * p2 + 0.1 * p1 + 1.0 / float((TotalWord + TotalLex))
 ### change to log to prevent underflow value which can cause incorrect syllable segmentation
     p = math.log(p)
 #    print('prob',p)
@@ -3522,6 +3528,10 @@ initial()
 
 '''
 
+x = 'หมัก'
+print(g2p(x))
+#print(syl_segment(x))
+
 file = "/Users/awirote/Dropbox/Corpus/TTC/thtxt1.txt"
 Maltparser_Path = "/Users/awirote/Dropbox/prog/maltparser-1.9.2"
 
@@ -3602,8 +3612,6 @@ res = TextAna(text1,TextOption="edu",UDParse="Malt")
 print(res)
 
 
-x = 'อาการอากรนอนกรน'
-print(g2p(x))
 
 
 
