@@ -35,7 +35,7 @@ def read_thaidict(Filename):
     file1 = open(Filename, 'r', encoding ='cp874')
     for line in  file1:
         w = line.rstrip()
-        w = re.sub(r'\.','\\\.',w)
+        w = re.sub(r'\.','\\\\.',w)
         TDICT[w] = 1
     return(1)
 
@@ -480,7 +480,7 @@ def TransformSyl(form,phone):
     elif re.search(r'ee[nmN][12]',phone):
         phone = re.sub(r'ee','e',phone)
     elif re.search(r'\@\@[nmN][12]',phone):
-        phone = re.sub(r'\@\@','\@',phone)
+        phone = re.sub(r'\@\@','\\@',phone)
 #Case 1 อยxxx change sound "?a1'jxxx" to "jxxx"
     if re.search(r'^อย่า$|^อยู่$|^อย่าง$|^อยาก$',form) and "'" in phone:
         x = phone.split("'")
@@ -1251,7 +1251,7 @@ def read_sylpattern(Filename):
         tmp[0] = re.sub(r'Z',u"([กงดนมบรลฎฏจตณถพศทสชคภปญ])",tmp[0])
         tmp[0] = re.sub(r'D',u"([กงดนมบวยต])",tmp[0])
         tmp[0] = re.sub(r'W',u"[ก-ฮ]",tmp[0])
-        tmp[0] = re.sub(r'\.',u"[\.]",tmp[0])
+        tmp[0] = re.sub(r'\.',u"[\\.]",tmp[0])
 #        re.sub('Q',u"[\(\)\-\:\'\xCF\xE6]",tmp[0])
         if tmp[2] == "T":
             tmp[0] = re.sub(r"T",u"[่้๊๋]",tmp[0])

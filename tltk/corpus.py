@@ -19,14 +19,24 @@ import os
 import math
 from collections import defaultdict
 from operator import itemgetter
-import requests
+from tltk._optional import Missing
+try:
+    import requests
+except ImportError:
+    requests = Missing("requests", "corpus")
 
-import gensim
-from gensim.models import Word2Vec, KeyedVectors
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+try:
+    import gensim
+    from gensim.models import Word2Vec, KeyedVectors
+    from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+except ImportError:
+    gensim = Word2Vec = KeyedVectors = Doc2Vec = TaggedDocument = Missing("gensim", "corpus")
 
 import pickle
-from sklearn.decomposition import PCA
+try:
+    from sklearn.decomposition import PCA
+except ImportError:
+    PCA = Missing("scikit-learn", "corpus")
 try:
     import matplotlib
     from matplotlib import pyplot
@@ -34,7 +44,10 @@ except ImportError:
     mplAvailable = False
 else:
     mplAvailable = True
-import numpy
+try:
+    import numpy
+except ImportError:
+    numpy = Missing("numpy", "corpus")
 
 import tltk
 from tltk import nlp
@@ -346,7 +359,7 @@ def Corpus_build(dir, sep="file", lang="th",stopword="y", filetype="txt"):
                     doc = doc.replace('<s/>','')
                     doc = doc.replace('\n','')
                     for u in doc.split('<u/>'):
-                        wrdlst = re.split("[, |?:!\^]+",u)
+                        wrdlst = re.split("[, |?:!\\^]+",u)
                         if '' in wrdlst : wrdlst.remove('')
                         if wrdlst != []:
                             if lang =='th' and stopword == 'y':
@@ -360,7 +373,7 @@ def Corpus_build(dir, sep="file", lang="th",stopword="y", filetype="txt"):
 #                    doc = ' '.join(lines)
                     doc = doc.replace('<s/>','')
                     doc = doc.replace('\n','')
-                    wrdlst = re.split("[, |?:!\^]+",doc)
+                    wrdlst = re.split("[, |?:!\\^]+",doc)
                     if '' in wrdlst : wrdlst.remove('')
                     if wrdlst != []:
                         if lang =='th' and stopword == 'y':
@@ -373,7 +386,7 @@ def Corpus_build(dir, sep="file", lang="th",stopword="y", filetype="txt"):
                         doc = nlp.word_segment(line)
                         doc = doc.replace('\n','')
                         doc = doc.replace('<s/>','')
-                        wrdlst = re.split("[, |?:!\^]+",doc)
+                        wrdlst = re.split("[, |?:!\\^]+",doc)
                         if '' in wrdlst : wrdlst.remove('')
                         if wrdlst != []:
                             if lang=='th' and stopword == 'y':

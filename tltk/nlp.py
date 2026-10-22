@@ -23,21 +23,33 @@ import sys
 from copy import deepcopy
 from collections import defaultdict
 from itertools import product
-import pandas as pd
+from tltk._optional import Missing
+try:
+    import pandas as pd
+except ImportError:
+    pd = Missing("pandas", "nlp")
 
 
 #import pkg_resources
 import pickle
 #import gzip
-from nltk.tag.perceptron import PerceptronTagger
-from nltk.parse import malt
+try:
+    from nltk.tag.perceptron import PerceptronTagger
+    from nltk.parse import malt
+except ImportError:
+    PerceptronTagger = malt = Missing("nltk", "nlp")
 
+try:
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.feature_extraction import DictVectorizer
+    from sklearn.pipeline import Pipeline
+except ImportError:
+    RandomForestClassifier = DictVectorizer = Pipeline = Missing("scikit-learn", "nlp")
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction import DictVectorizer
-from sklearn.pipeline import Pipeline
-
-from sklearn_crfsuite import CRF
+try:
+    from sklearn_crfsuite import CRF
+except ImportError:
+    CRF = Missing("sklearn-crfsuite", "nlp")
 
 import statistics
 
@@ -55,7 +67,7 @@ def read_thaidict(Filename):
     file1 = open(Filename, 'r')
     for line in  file1:
         w = line.rstrip()
-        w = re.sub(r'\.','\\\.',w)
+        w = re.sub(r'\.','\\\\.',w)
         TDICT[w] = 1
     return(1)
 
@@ -133,7 +145,6 @@ def match_Engtext(text):
         return False
 
 
-from nltk.parse import malt
 import warnings
 warnings.filterwarnings("ignore", message="The graph doesn't contain a node that depends on the root element")
 
@@ -580,8 +591,8 @@ def pack_ner(sent):
 ###  collapse <NE> w1/p1|w2/p2|w3/p3 </NE> into <NE> w1w2w3/PROPN </NE>
 '''
     print("out1",out)
-    while re.search(r'<(NE[plo])>(.+?)/[A-Z]+\|</\1>', out):
-        out = re.sub(r'<(NE[plo])>(.+?)/[A-Z]+\|</\1>',r'<\1>\2</\1>', out)
+    while re.search(r'<(NE[plo])>(.+?)/[A-Z]+\\|</\1>', out):
+        out = re.sub(r'<(NE[plo])>(.+?)/[A-Z]+\\|</\1>',r'<\1>\2</\1>', out)
     out = re.sub(r'<(NE[plo])>(.+?)</\1>',r'<\1>\2/PROPN</\1>',out)
     print("out2",out)
 '''
@@ -1093,7 +1104,7 @@ def TNC_tag(txt,POS="Y"):
     parx = txt.split('\n')
     tag = ""
     for par in parx:
-        for sent in re.sub('\s+', ' ', par).split():
+        for sent in re.sub('\\s+', ' ', par).split():
             tx = g2p(sent)
             (wx,trx) = tx.split('<tr/>')
             w_lst = wx.split('|')
@@ -1136,6 +1147,10 @@ def TextAna(alltext,TextOption="par",WordOption="colloc",UDParse="none"):
       tagger
     except NameError:
       pos_load()
+    try:
+      WRD
+    except NameError:  # loaded on first use: only TextAna needs it, and it holds numpy values
+      read_wordtier(os.path.dirname(os.path.abspath(__file__)) + '/word.pklz')
     prev_tag_results = []  
 
     txt = TextProp()
@@ -2115,7 +2130,7 @@ def TransformSyl(form,phone):
     elif re.search(r'ee[nmN][12]',phone):
         phone = re.sub(r'ee','e',phone)
     elif re.search(r'\@\@[nmN][12]',phone):
-        phone = re.sub(r'\@\@','\@',phone)
+        phone = re.sub(r'\@\@','\\@',phone)
 #Case 1 อยxxx change sound "?a1'jxxx" to "jxxx"
     if re.search(r'^อย่า$|^อยู่$|^อย่าง$|^อยาก$',form) and "'" in phone:
         x = phone.split("'")
@@ -2285,7 +2300,7 @@ def th2read(txt):
 #        tran = re.sub(r"([ptkc])h",r"\1ʰ",tran)
 #        for k, v in NORMALIZE_IPA:
 #            tran = tran.replace(k, v)
-        for syl in re.split("~|\||\^|\'",tran):
+        for syl in re.split("~|\\||\\^|\'",tran):
             if syl != '':
                 thread = PhoneToThai(syl)
                 out += thread + '-'
@@ -3223,7 +3238,7 @@ def read_sylpattern(Filename):
         tmp[0] = re.sub(r'Z',u"([กงดนมบรลฎฏจตณถพศทสชคภปญ])",tmp[0])
         tmp[0] = re.sub(r'D',u"([กงดนมบวยต])",tmp[0])
         tmp[0] = re.sub(r'W',u"[ก-ฮ]",tmp[0])
-        tmp[0] = re.sub(r'\.',u"[\.]",tmp[0])
+        tmp[0] = re.sub(r'\.',u"[\\.]",tmp[0])
 #        re.sub('Q',u"[\(\)\-\:\'\xCF\xE6]",tmp[0])
         if tmp[2] == "T":
             tmp[0] = re.sub(r"T",u"[่้๊๋]",tmp[0])
@@ -3513,7 +3528,7 @@ def initial():
 
     read_PhSTrigram(ATA_PATH +  '/PhSTrigram.sts')
 #    read_wordtier(ATA_PATH +  '/wrdtier')
-    read_wordtier(ATA_PATH +  '/word.pklz')
+#    word.pklz is read by TextAna on first use
 
     return(1)
 

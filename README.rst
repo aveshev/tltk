@@ -3,6 +3,22 @@ Thai Language Toolkit Project  version 1.11
 
 TLTK is a Python package designed for Thai language processing, which includes functionalities such as syllable and word segmentation, discourse unit segmentation, POS tagging, named entity recognition, grapheme-to-phoneme conversion, IPA transcription, romanization, and more. To use TLTK, you will need to have Python 3.6 or a more recent version installed. The project is an open-source software developed at Chulalongkorn University. As of version 1.2.2, the package license has been changed to the New BSD License (BSD-3-Clause).
 
+About this fork
+---------------
+
+This is a fork of tltk 1.11 (https://pypi.org/project/tltk/) kept for a Thai
+pronunciation trainer. It changes packaging and g2p only:
+
+- No required dependencies. g2p, segmentation, IPA and romanization use only
+  the standard library; ``pip install "tltk[nlp]"`` adds POS tagging, NER,
+  parsing and text analysis, ``"tltk[corpus]"`` adds word vectors and corpus
+  downloads, ``"tltk[all]"`` both. A missing library raises an ImportError
+  naming the extra when the feature is used.
+- No invalid escape sequence warnings; the broken ``tltk`` console script is gone.
+- g2p fixes (see Fork updates below).
+
+Install: ``pip install "tltk @ git+https://github.com/aveshev/tltk"``
+
 Input : must be utf8 Thai texts.
 
 Updates:

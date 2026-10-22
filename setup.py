@@ -16,7 +16,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.11',
+    version='1.11+aveshev.1',
 
     description='Thai Language Toolkit',
     long_description=long_description,
@@ -68,18 +68,20 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-     install_requires=[
-          'nltk', 'scikit-learn~=1.2.0', 'sklearn_crfsuite', 'gensim'
-      ],
+    # g2p, segmentation and romanization need only the standard library; the
+    # heavier features are optional extras (see tltk/_optional.py).
+    install_requires=[],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
     # $ pip install -e .[dev,test]
-  #  extras_require={
-  #      'dev': ['check-manifest'],
-  #      'test': ['coverage'],
-  #  },
+    extras_require={
+        'nlp': ['nltk', 'scikit-learn>=1.2', 'sklearn-crfsuite', 'pandas'],
+        'corpus': ['gensim', 'requests', 'numpy', 'scikit-learn>=1.2'],
+        'all': ['nltk', 'scikit-learn>=1.2', 'sklearn-crfsuite', 'pandas', 'gensim', 'requests', 'numpy'],
+    },
+    python_requires='>=3.8',
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
@@ -94,12 +96,4 @@ setup(
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
 #    data_files = [('corpus', ['tnc2gram', 'tnc3gram', 'tncwordlist'])],
 
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to create the appropriate form of executable for the target platform.
-    entry_points={
-        'console_scripts': [
-            'tltk = tltk:main'
-        ],
-    },
 )
