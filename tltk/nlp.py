@@ -1717,6 +1717,7 @@ G2P_FIXES = {
     "ชานมเย็น": "ชา~นม~เย็น<tr/>chaa0~nom0~jen0",  # parsed as ชาน~มเย็น
     "บุรุษ": "บุ~รุษ<tr/>bu1~rut1",            # [บุหฺรุด] (Royal Society dictionary): low, not high
     "บรรพบุรุษ": "บรรพ~บุ~รุษ<tr/>ban0'pha3~bu1~rut1",  # บรรพ alone reads bap1
+    "ภรรยา": "ภรร~ยา<tr/>phan0'ra3~jaa0",     # [พัน-ระ-ยา] (also พัน-ยา): the reading speakers use
     # English loanwords keep their spoken tones (เปิ้ล, เล่ย์)
     "แอปเปิล": "แอป~เปิล<tr/>?xxp1~p@@n2",
     "วอลเลย์บอล": "วอล~เลย์~บอล<tr/>wOOn0~lee2~bOOn0",

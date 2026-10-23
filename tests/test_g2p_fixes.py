@@ -31,6 +31,8 @@ CASES = {
     "บุรุษ": "bu1~rut1",
     "สุภาพบุรุษ": "su1~phaap2~bu1~rut1",
     "บรรพบุรุษ": "ban0'pha3~bu1~rut1",
+    "ภรรยา": "phan0'ra3~jaa0",
+    "ภรรยาของผม": "phan0'ra3~jaa0~khOON4~phom4",
     "แอปเปิล": "?xxp1~p@@n2",
     "วอลเลย์บอล": "wOOn0~lee2~bOOn0",
     # unchanged
